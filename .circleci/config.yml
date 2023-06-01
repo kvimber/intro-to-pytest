@@ -51,7 +51,7 @@ jobs:
           command: sudo apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
       - run:
           name: setup pytest
-          command: pip3 install -r pytest-sandbox/requirements.txt
+          command: pip3 install -r requirements.txt
       - run:
           name: run all tests with runner (no plugin)
           command: pytest pytest-sandbox --collect-only -q | grep -e "\.py" | go run main.go  --command="xargs pytest --junitxml=./results/test-results.xml--"
@@ -68,7 +68,7 @@ jobs:
           command: sudo apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
       - run:
           name: setup pytest
-          command: pip3 install -r pytest-sandbox/requirements.txt
+          command: pip3 install -r requirements.txt
       - run:
           name: run failed tests only
           command: pytest pytest-sandbox --collect-only -q | grep -e "\.py" | RERUN_FAILED=1 RUNNER=pytest go run main.go  --command="xargs pytest --junitxml=./results/test-results.xml --"
