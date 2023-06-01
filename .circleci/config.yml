@@ -48,7 +48,7 @@ jobs:
       - checkout
       - run:
           name: install pip
-          command: apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
+          command: sudo apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
       - run:
           name: setup pytest
           command: pip3 install -r pytest-sandbox/requirements.txt
@@ -65,7 +65,7 @@ jobs:
       - checkout
       - run:
           name: install pip
-          command: apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
+          command: sudo apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
       - run:
           name: setup pytest
           command: pip3 install -r pytest-sandbox/requirements.txt
