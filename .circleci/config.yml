@@ -30,14 +30,6 @@ commands:
           command: ./do install-devtools
           working_directory: project
 
-executors:
-  go:
-    docker: &docker-go
-      - image: circleci/go-service:0.1-dev
-        auth:
-          username: $RO_DOCKER_HUB_USERNAME
-          password: $RO_DOCKER_HUB_PASSWORD
-
 workflows:
   build-test-deploy:
     jobs:
@@ -50,7 +42,8 @@ workflows:
 
 jobs:
   pytest-run-all-tests:
-    executor: go
+    machine:
+      image: ubuntu-2204:2023.04.2
     steps:
       - checkout
       - run:
@@ -66,7 +59,8 @@ jobs:
           path: ./results/test-results.xml
 
   pytest-run-failed-tests-only:
-    executor: go
+    machine:
+      image: ubuntu-2204:2023.04.2
     steps:
       - checkout
       - run:
