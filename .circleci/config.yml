@@ -53,8 +53,14 @@ jobs:
           name: setup pytest
           command: pip3 install -r requirements.txt
       - run:
-          name: run all tests with runner (no plugin)
-          command: pytest pytest-sandbox --collect-only -q | grep -e "\.py" | go run main.go  --command="xargs pytest --junitxml=./results/test-results.xml--"
+          name: run all tests
+          command: |
+            set -e
+            TEST_FILES=$(circleci tests glob "tests/**/[0-9]*.py" | circleci tests split)
+            echo "test files:"
+            echo $TEST_FILES
+            # pytest --collect-only -q | --command="xargs pytest --junitxml=./results/test-results.xml--"
+            pytest $TEST_FILES
       - store_test_results:
           path: ./results/test-results.xml
 
@@ -71,7 +77,7 @@ jobs:
           command: pip3 install -r requirements.txt
       - run:
           name: run failed tests only
-          command: pytest pytest-sandbox --collect-only -q | grep -e "\.py" | RERUN_FAILED=1 RUNNER=pytest go run main.go  --command="xargs pytest --junitxml=./results/test-results.xml --"
+          command: pytest --collect-only -q | RERUN_FAILED=1 RUNNER=pytest go run main.go  --command="xargs pytest --junitxml=./results/test-results.xml --"
       - store_test_results:
           path: ./results/test-results.xml
 
