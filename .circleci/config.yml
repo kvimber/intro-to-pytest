@@ -55,7 +55,7 @@ jobs:
       - run:
           name: run all tests
           command: |
-            set -e
+            set -e -x
             TEST_FILES=$(circleci tests glob "tests/**/[0-9]*.py" | circleci tests split)
             echo "test files:"
             echo $TEST_FILES
