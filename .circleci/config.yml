@@ -33,14 +33,35 @@ commands:
 workflows:
   build-test-deploy:
     jobs:
-      - pytest-run-all-tests:
+      - pytest-run:
           context:
             - dockerhub-readonly
-              # - pytest-run-failed-tests-only:
-              #     context:
-              #       - dockerhub-readonly
+      # - pytest-run-all-tests:
+      #     context:
+      #       - dockerhub-readonly
+      #         # - pytest-run-failed-tests-only:
+      #         #     context:
+      #         #       - dockerhub-readonly
 
 jobs:
+  pytest-run:
+    machine:
+      image: ubuntu-2204:2023.04.2
+    steps:
+      - checkout
+      - run:
+          name: install pip
+          command: sudo apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
+      - run:
+          name: setup pytest
+          command: pip3 install -r requirements.txt
+      - run:
+          name: run all tests
+          command: |
+            set -e -x
+            pytest
+
+
   pytest-run-all-tests:
     machine:
       image: ubuntu-2204:2023.04.2
