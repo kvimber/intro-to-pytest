@@ -51,15 +51,16 @@ jobs:
       - checkout
       - run:
           name: install pip
-          command: sudo apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
+          command: |
+            set -e -x
+            sudo apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
+            pip3 install --upgrade pip
       - run:
           name: setup pytest
           command: pip3 install -r requirements.txt
       - run:
           name: run all tests
-          command: |
-            set -e -x
-            pytest
+          command: pytest
 
 
   pytest-run-all-tests:
