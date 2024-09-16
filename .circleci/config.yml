@@ -30,54 +30,76 @@ commands:
           command: ./do install-devtools
           working_directory: project
 
-executors:
-  go:
-    docker: &docker-go
-      - image: circleci/go-service:0.1-dev
-        auth:
-          username: $RO_DOCKER_HUB_USERNAME
-          password: $RO_DOCKER_HUB_PASSWORD
-
 workflows:
   build-test-deploy:
     jobs:
-      - pytest-run-all-tests:
+      - pytest-run:
           context:
             - dockerhub-readonly
-              # - pytest-run-failed-tests-only:
-              #     context:
-              #       - dockerhub-readonly
+      # - pytest-run-all-tests:
+      #     context:
+      #       - dockerhub-readonly
+      #         # - pytest-run-failed-tests-only:
+      #         #     context:
+      #         #       - dockerhub-readonly
 
 jobs:
-  pytest-run-all-tests:
-    executor: go
+  pytest-run:
+    machine:
+      image: ubuntu-2204:2023.04.2
     steps:
       - checkout
       - run:
           name: install pip
-          command: apt --yes --force-yes install python3-pip
+          command: |
+            set -e -x
+            sudo apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
+            pip3 install --upgrade pip
       - run:
           name: setup pytest
-          command: pip3 install -r pytest-sandbox/requirements.txt
+          command: pip3 install -r requirements.txt
       - run:
-          name: run all tests with runner (no plugin)
-          command: pytest pytest-sandbox --collect-only -q | grep -e "\.py" | go run main.go  --command="xargs pytest --junitxml=./results/test-results.xml--"
+          name: run all tests
+          command: pytest
+
+
+  pytest-run-all-tests:
+    machine:
+      image: ubuntu-2204:2023.04.2
+    steps:
+      - checkout
+      - run:
+          name: install pip
+          command: sudo apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
+      - run:
+          name: setup pytest
+          command: pip3 install -r requirements.txt
+      - run:
+          name: run all tests
+          command: |
+            set -e -x
+            TEST_FILES=$(circleci tests glob "tests/**/[0-9]*.py" | circleci tests split)
+            echo "test files:"
+            echo $TEST_FILES
+            # pytest --collect-only -q | --command="xargs pytest --junitxml=./results/test-results.xml--"
+            pytest $TEST_FILES
       - store_test_results:
           path: ./results/test-results.xml
 
   pytest-run-failed-tests-only:
-    executor: go
+    machine:
+      image: ubuntu-2204:2023.04.2
     steps:
       - checkout
       - run:
           name: install pip
-          command: apt --yes --force-yes install python3-pip
+          command: sudo apt --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3-pip
       - run:
           name: setup pytest
-          command: pip3 install -r pytest-sandbox/requirements.txt
+          command: pip3 install -r requirements.txt
       - run:
           name: run failed tests only
-          command: pytest pytest-sandbox --collect-only -q | grep -e "\.py" | RERUN_FAILED=1 RUNNER=pytest go run main.go  --command="xargs pytest --junitxml=./results/test-results.xml --"
+          command: pytest --collect-only -q | RERUN_FAILED=1 RUNNER=pytest go run main.go  --command="xargs pytest --junitxml=./results/test-results.xml --"
       - store_test_results:
           path: ./results/test-results.xml
 
